@@ -3,7 +3,7 @@ package models;
 public class Currency {
     private int id;
     private String code;
-    private String fullName;
+    private String name;
     private String sign;
 
     public int getId() {
@@ -22,12 +22,12 @@ public class Currency {
         this.code = code;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getName() {
+        return name;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getSign() {

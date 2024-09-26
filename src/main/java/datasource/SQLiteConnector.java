@@ -1,4 +1,4 @@
-package utils;
+package datasource;
 
 import exceptions.DatabaseConnectionException;
 

@@ -1,13 +1,17 @@
 package dao;
 
-import exceptions.DataReadException;
+import exceptions.QueryExecuteException;
 import exceptions.DatabaseConnectionException;
+import exceptions.NotFoundException;
+
 import java.util.List;
-import java.util.Optional;
 
 public interface DAO<T> {
-    Optional<T> get(Integer id);
-    List<T> getAll() throws DatabaseConnectionException, DataReadException;
-    void save(T item);
+    T get(String code) throws DatabaseConnectionException, QueryExecuteException, NotFoundException;
+
+    List<T> getAll() throws DatabaseConnectionException, QueryExecuteException, NotFoundException;
+
+    void save(T item) throws DatabaseConnectionException, QueryExecuteException;
+
     void update(T item);
 }
