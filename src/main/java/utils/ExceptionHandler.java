@@ -7,7 +7,7 @@ import exceptions.NotFoundException;
 import javax.servlet.http.HttpServletResponse;
 
 public class ExceptionHandler {
-    public static ResponseMessage handle(Exception e, HttpServletResponse response) {
+    public static ErrorMessage handle(Exception e, HttpServletResponse response) {
         if (e instanceof NotFoundException) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         } else if (e instanceof BadRequestException) {
@@ -18,6 +18,6 @@ public class ExceptionHandler {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseMessage(response.getStatus(), e.getMessage());
+        return new ErrorMessage(response.getStatus(), e.getMessage());
     }
 }
