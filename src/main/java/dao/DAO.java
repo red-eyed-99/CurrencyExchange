@@ -13,5 +13,5 @@ public interface DAO<T, K> {
 
     void save(T item) throws DatabaseConnectionException, QueryExecuteException;
 
-    void update(T item);
+    void update(T item) throws DatabaseConnectionException, QueryExecuteException;
 }

@@ -143,8 +143,27 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
     }
 
     @Override
-    public void update(ExchangeRate item) {
+    public void update(ExchangeRate exchangeRate) throws DatabaseConnectionException, QueryExecuteException {
+        String sql = "UPDATE ExchangeRates SET rate = ? WHERE base_currency_id = ? AND target_currency_id = ?";
 
+        try (Connection connection = SQLiteConnector.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            preparedStatement.setDouble(1, exchangeRate.getRate());
+            preparedStatement.setInt(2, exchangeRate.getBaseCurrency().getId());
+            preparedStatement.setInt(3, exchangeRate.getTargetCurrency().getId());
+
+            preparedStatement.executeUpdate();
+
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    exchangeRate.setRate(resultSet.getDouble(1));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new QueryExecuteException();
+        }
     }
 
     public boolean checkExistence(int baseId, int targetId) throws DatabaseConnectionException, QueryExecuteException {
