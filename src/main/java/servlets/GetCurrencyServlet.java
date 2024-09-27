@@ -8,8 +8,8 @@ import exceptions.NotFoundException;
 import models.Currency;
 import utils.ExceptionHandler;
 import utils.JsonResponsePrinter;
-import utils.validators.GetRequestValidator;
 import utils.ErrorMessage;
+import utils.RequestValidator;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -27,9 +27,9 @@ public class GetCurrencyServlet extends HttpServlet {
         Currency currency;
 
         try {
-            GetRequestValidator validator = new GetRequestValidator();
+            RequestValidator validator = new RequestValidator();
 
-            String currencyCode = validator.validateOnGetCurrency(request);
+            String currencyCode = validator.validateCurrencyCode(request);
 
             currency = currencyDAO.get(currencyCode);
 

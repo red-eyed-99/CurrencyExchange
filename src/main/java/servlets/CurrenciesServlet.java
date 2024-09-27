@@ -6,7 +6,7 @@ import models.Currency;
 import utils.ErrorMessage;
 import utils.ExceptionHandler;
 import utils.JsonResponsePrinter;
-import utils.validators.PostRequestValidator;
+import utils.RequestValidator;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -40,8 +40,8 @@ public class CurrenciesServlet extends HttpServlet {
         CurrencyDAO currencyDAO = new CurrencyDAO();
 
         try {
-            PostRequestValidator validator = new PostRequestValidator();
-            validator.validateOnPostCurrency(request);
+            RequestValidator validator = new RequestValidator();
+            validator.validateCurrencyQueryParams(request);
 
             String currencyCode = request.getParameter("code").toUpperCase();
 

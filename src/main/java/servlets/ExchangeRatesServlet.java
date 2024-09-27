@@ -8,7 +8,7 @@ import models.ExchangeRate;
 import utils.ErrorMessage;
 import utils.ExceptionHandler;
 import utils.JsonResponsePrinter;
-import utils.validators.PostRequestValidator;
+import utils.RequestValidator;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -43,8 +43,8 @@ public class ExchangeRatesServlet extends HttpServlet {
         CurrencyDAO currencyDAO = new CurrencyDAO();
 
         try {
-            PostRequestValidator validator = new PostRequestValidator();
-            validator.validateOnPostExchangeRate(request);
+            RequestValidator validator = new RequestValidator();
+            validator.validateExchangeRateQueryParams(request);
 
             String baseCurrencyCode = request.getParameter("baseCurrencyCode").toUpperCase();
             String targetCurrencyCode = request.getParameter("targetCurrencyCode").toUpperCase();
