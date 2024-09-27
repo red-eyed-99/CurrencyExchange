@@ -3,10 +3,10 @@ package servlets;
 import dao.CurrencyDAO;
 import exceptions.*;
 import models.Currency;
+import utils.ErrorMessage;
 import utils.ExceptionHandler;
 import utils.JsonResponsePrinter;
-import utils.RequestValidator;
-import utils.ErrorMessage;
+import utils.validators.PostRequestValidator;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -40,15 +40,17 @@ public class CurrenciesServlet extends HttpServlet {
         CurrencyDAO currencyDAO = new CurrencyDAO();
 
         try {
-            RequestValidator validator = new RequestValidator();
-            validator.validatePostingCurrency(request);
+            PostRequestValidator validator = new PostRequestValidator();
+            validator.validateOnPostCurrency(request);
 
-            if (currencyDAO.checkExistence(request.getParameter("code"))) {
+            String currencyCode = request.getParameter("code").toUpperCase();
+
+            if (currencyDAO.checkExistence(currencyCode)) {
                 throw new AlreadyExistException("Currency with this code already exists");
             }
 
             Currency currency = new Currency();
-            currency.setCode(request.getParameter("code"));
+            currency.setCode(currencyCode);
             currency.setName(request.getParameter("name"));
             currency.setSign(request.getParameter("sign"));
 
