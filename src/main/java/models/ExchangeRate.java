@@ -2,8 +2,8 @@ package models;
 
 public class ExchangeRate {
     private int id;
-    private int baseCurrencyId;
-    private int targetCurrencyId;
+    private Currency baseCurrency;
+    private Currency targetCurrency;
     private double rate;
 
     public int getId() {
@@ -14,20 +14,20 @@ public class ExchangeRate {
         this.id = id;
     }
 
-    public int getBaseCurrencyId() {
-        return baseCurrencyId;
+    public Currency getBaseCurrency() {
+        return baseCurrency;
     }
 
-    public void setBaseCurrencyId(int baseCurrencyId) {
-        this.baseCurrencyId = baseCurrencyId;
+    public void setBaseCurrency(Currency baseCurrency) {
+        this.baseCurrency = baseCurrency;
     }
 
-    public int getTargetCurrencyId() {
-        return targetCurrencyId;
+    public Currency getTargetCurrency() {
+        return targetCurrency;
     }
 
-    public void setTargetCurrencyId(int targetCurrencyId) {
-        this.targetCurrencyId = targetCurrencyId;
+    public void setTargetCurrency(Currency targetCurrency) {
+        this.targetCurrency = targetCurrency;
     }
 
     public double getRate() {
