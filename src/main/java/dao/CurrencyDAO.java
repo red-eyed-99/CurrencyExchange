@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CurrencyDAO implements DAO<Currency> {
+public class CurrencyDAO implements DAO<Currency, String> {
 
     @Override
     public Currency get(String code) throws
@@ -22,6 +22,7 @@ public class CurrencyDAO implements DAO<Currency> {
 
         try (Connection connection = SQLiteConnector.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
             preparedStatement.setString(1, code);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {

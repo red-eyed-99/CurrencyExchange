@@ -6,8 +6,8 @@ import exceptions.NotFoundException;
 
 import java.util.List;
 
-public interface DAO<T> {
-    T get(String code) throws DatabaseConnectionException, QueryExecuteException, NotFoundException;
+public interface DAO<T, K> {
+    T get(K key) throws DatabaseConnectionException, QueryExecuteException, NotFoundException;
 
     List<T> getAll() throws DatabaseConnectionException, QueryExecuteException, NotFoundException;
 
