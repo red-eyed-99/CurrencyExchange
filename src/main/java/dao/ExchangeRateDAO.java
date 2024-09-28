@@ -11,11 +11,14 @@ import models.ExchangeRate;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
 
     @Override
-    public ExchangeRate get(CurrencyPair currencyPair) throws DatabaseConnectionException, QueryExecuteException, NotFoundException {
+    public ExchangeRate get(CurrencyPair currencyPair)
+            throws DatabaseConnectionException, QueryExecuteException, NotFoundException {
+
         String sql = "SELECT * FROM ExchangeRates WHERE base_currency_id = ? AND target_currency_id = ?";
 
         Currency baseCurrency = currencyPair.getBaseCurrency();
@@ -55,7 +58,7 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
     @Override
     public List<ExchangeRate> getAll() throws DatabaseConnectionException, QueryExecuteException, NotFoundException {
         String sql = "SELECT * FROM ExchangeRates, Currencies " +
-                     "WHERE ExchangeRates.target_currency_id = Currencies.id";
+                "WHERE ExchangeRates.target_currency_id = Currencies.id";
 
         List<ExchangeRate> exchangeRates = new ArrayList<>();
 
@@ -87,7 +90,9 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
         return exchangeRates;
     }
 
-    public Currency getCurrencyById(int id) throws DatabaseConnectionException, QueryExecuteException, NotFoundException {
+    public Currency getCurrencyById(int id)
+            throws DatabaseConnectionException, QueryExecuteException, NotFoundException {
+
         String sql = "SELECT * FROM Currencies WHERE id = ?";
 
         Currency currency = null;
@@ -181,6 +186,17 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
 
         } catch (SQLException e) {
             throw new QueryExecuteException();
+        }
+    }
+
+    public Optional<ExchangeRate> getIfExist(CurrencyPair currencyPair)
+            throws DatabaseConnectionException, QueryExecuteException {
+
+        try {
+            ExchangeRate exchangeRate = get(currencyPair);
+            return Optional.of(exchangeRate);
+        } catch (NotFoundException e) {
+            return Optional.empty();
         }
     }
 }
