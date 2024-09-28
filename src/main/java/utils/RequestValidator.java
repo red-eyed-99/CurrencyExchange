@@ -9,6 +9,7 @@ import java.util.Map;
 public class RequestValidator {
     private static final Map<String, Integer> CURRENCY_PARAM_LIMITS = new HashMap<>();
     private static final Map<String, Integer> EXCHANGERATES_PARAM_LIMITS = new HashMap<>();
+    private static final Map<String, Integer> EXCHANGECURRENCY_PARAM_LIMITS = new HashMap<>();
 
     private static final int PAIR_CODE_LENGTH = 6;
 
@@ -20,6 +21,10 @@ public class RequestValidator {
     private static final String EXCHANGERATES_TARGETCODE = "targetCurrencyCode";
     private static final String EXCHANGERATES_RATE = "rate";
 
+    private static final String EXCHANGECURRENCY_BASECODE = "from";
+    private static final String EXCHANGECURRENCY_TARGETCODE = "to";
+    private static final String EXCHANGECURRENCY_AMOUNT = "amount";
+
     static {
         CURRENCY_PARAM_LIMITS.put(CURRENCY_CODE, 3);
         CURRENCY_PARAM_LIMITS.put(CURRENCY_NAME, 255);
@@ -30,6 +35,12 @@ public class RequestValidator {
         EXCHANGERATES_PARAM_LIMITS.put(EXCHANGERATES_BASECODE, 3);
         EXCHANGERATES_PARAM_LIMITS.put(EXCHANGERATES_TARGETCODE, 3);
         EXCHANGERATES_PARAM_LIMITS.put(EXCHANGERATES_RATE, 40);
+    }
+
+    static {
+        EXCHANGECURRENCY_PARAM_LIMITS.put(EXCHANGECURRENCY_BASECODE, 3);
+        EXCHANGECURRENCY_PARAM_LIMITS.put(EXCHANGECURRENCY_TARGETCODE, 3);
+        EXCHANGECURRENCY_PARAM_LIMITS.put(EXCHANGECURRENCY_AMOUNT, 40);
     }
 
     public double validateRate(String rateValue) throws BadRequestException {
@@ -73,6 +84,10 @@ public class RequestValidator {
 
     public void validateExchangeRateQueryParams(HttpServletRequest request) throws BadRequestException {
         validateParams(request, EXCHANGERATES_PARAM_LIMITS);
+    }
+
+    public void validateExchangeCurrencyQueryParams(HttpServletRequest request) throws BadRequestException {
+        validateParams(request, EXCHANGECURRENCY_PARAM_LIMITS);
     }
 
     private void validateParams(HttpServletRequest request, Map<String, Integer> paramsLimits) throws BadRequestException {
