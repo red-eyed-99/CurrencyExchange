@@ -12,7 +12,7 @@ import models.ExchangeRate;
 import utils.ExceptionHandler;
 import utils.JsonResponsePrinter;
 import utils.ErrorMessage;
-import utils.RequestValidator;
+import utils.validators.ExchangeRateValidator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -28,7 +28,7 @@ public class ExchangeRateServlet extends HttpServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String method = request.getMethod();
 
-        if (!method.equals("PATCH")) {
+        if (!method.equalsIgnoreCase("PATCH")) {
             super.service(request, response);
             return;
         }
@@ -44,7 +44,7 @@ public class ExchangeRateServlet extends HttpServlet {
         ExchangeRate exchangeRate;
 
         try {
-            RequestValidator validator = new RequestValidator();
+            ExchangeRateValidator validator = new ExchangeRateValidator();
 
             String[] currencyPairCodes = validator.validateCurrencyPairCode(request);
 
@@ -55,8 +55,9 @@ public class ExchangeRateServlet extends HttpServlet {
 
             exchangeRate = exchangeRateDAO.get(currencyPair);
 
-        } catch (DatabaseConnectionException | QueryExecuteException | NotFoundException
-                 | BadRequestException e) {
+        } catch (DatabaseConnectionException | QueryExecuteException | NotFoundException |
+                 BadRequestException e) {
+
             ErrorMessage message = ExceptionHandler.handle(e, response);
             JsonResponsePrinter.print(response, message);
             return;
@@ -72,7 +73,7 @@ public class ExchangeRateServlet extends HttpServlet {
         ExchangeRate exchangeRate;
 
         try {
-            RequestValidator validator = new RequestValidator();
+            ExchangeRateValidator validator = new ExchangeRateValidator();
 
             String[] currencyPairCodes = validator.validateCurrencyPairCode(request);
             double rate = validator.validateRate(request.getParameter("rate"));
@@ -86,8 +87,9 @@ public class ExchangeRateServlet extends HttpServlet {
             exchangeRate.setRate(rate);
             exchangeRateDAO.update(exchangeRate);
 
-        } catch (DatabaseConnectionException | QueryExecuteException | NotFoundException
-                 | BadRequestException e) {
+        } catch (DatabaseConnectionException | QueryExecuteException | NotFoundException |
+                 BadRequestException e) {
+
             ErrorMessage message = ExceptionHandler.handle(e, response);
             JsonResponsePrinter.print(response, message);
             return;

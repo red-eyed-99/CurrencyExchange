@@ -10,7 +10,8 @@ import service.ExchangeCurrencyService;
 import utils.ErrorMessage;
 import utils.ExceptionHandler;
 import utils.JsonResponsePrinter;
-import utils.RequestValidator;
+import utils.validators.ExchangeCurrencyValidator;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,15 +23,15 @@ public class ExchangeCurrencyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        RequestValidator validator = new RequestValidator();
+        ExchangeCurrencyValidator validator = new ExchangeCurrencyValidator();
         ExchangeCurrencyService service = new ExchangeCurrencyService();
         ExchangeCurrencyResponseDTO responseDTO;
 
         try {
-            validator.validateExchangeCurrencyQueryParams(request);
+            validator.validateQueryParams(request);
 
-            String fromCurrencyCode = request.getParameter("from");
-            String toCurrencyCode = request.getParameter("to");
+            String fromCurrencyCode = request.getParameter("from").toUpperCase();
+            String toCurrencyCode = request.getParameter("to").toUpperCase();
             double amount = Double.parseDouble(request.getParameter("amount"));
 
             ExchangeCurrencyRequestDTO requestDTO =

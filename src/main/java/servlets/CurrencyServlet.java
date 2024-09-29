@@ -9,7 +9,7 @@ import models.Currency;
 import utils.ExceptionHandler;
 import utils.JsonResponsePrinter;
 import utils.ErrorMessage;
-import utils.RequestValidator;
+import utils.validators.CurrencyValidator;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet("/currency/*")
-public class GetCurrencyServlet extends HttpServlet {
+public class CurrencyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -27,14 +27,15 @@ public class GetCurrencyServlet extends HttpServlet {
         Currency currency;
 
         try {
-            RequestValidator validator = new RequestValidator();
+            CurrencyValidator validator = new CurrencyValidator();
 
             String currencyCode = validator.validateCurrencyCode(request);
 
             currency = currencyDAO.get(currencyCode);
 
-        } catch (DatabaseConnectionException | QueryExecuteException | NotFoundException
-                 | BadRequestException e) {
+        } catch (DatabaseConnectionException | QueryExecuteException | NotFoundException |
+                 BadRequestException e) {
+
             ErrorMessage message = ExceptionHandler.handle(e, response);
             JsonResponsePrinter.print(response, message);
             return;
