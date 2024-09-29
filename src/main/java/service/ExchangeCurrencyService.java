@@ -10,6 +10,7 @@ import exceptions.QueryExecuteException;
 import models.Currency;
 import models.CurrencyPair;
 import models.ExchangeRate;
+import utils.ExchangeCurrencyCalculator;
 import utils.TypeOfQuote;
 
 import java.util.Optional;
@@ -17,6 +18,8 @@ import java.util.Optional;
 public class ExchangeCurrencyService {
     private final CurrencyDAO currencyDAO = new CurrencyDAO();
     private final ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
+
+    private final ExchangeCurrencyCalculator calculator = new ExchangeCurrencyCalculator();
 
     public ExchangeCurrencyResponseDTO exchangeCurrency(ExchangeCurrencyRequestDTO exchangeCurrencyRequestDTO)
             throws DatabaseConnectionException, NotFoundException, QueryExecuteException {
@@ -27,79 +30,48 @@ public class ExchangeCurrencyService {
         double rate;
         double convertedAmount;
 
-        ExchangeRate exchangeRate;
+        CurrencyPair currencyPair = new CurrencyPair(baseCurrency, targetCurrency);
 
-        if (exchangeRateDAO.checkExistence(baseCurrency.getId(), targetCurrency.getId())) {
-            exchangeRate = exchangeRateDAO.get(new CurrencyPair(baseCurrency, targetCurrency));
-            rate = exchangeRate.getRate();
-            convertedAmount = calculateDirectRate(rate, amount);
-        } else if (exchangeRateDAO.checkExistence(targetCurrency.getId(), baseCurrency.getId())) {
-            exchangeRate = exchangeRateDAO.get(new CurrencyPair(targetCurrency, baseCurrency));
-            rate = exchangeRate.getRate();
-            convertedAmount = calculateIndirectRate(rate, amount);
+        Optional<ExchangeRate> exchangeRate = exchangeRateDAO.getIfExist(currencyPair);
+
+        if (exchangeRate.isPresent()) {
+            rate = exchangeRate.get().getRate();
+            convertedAmount = calculator.calculateDirectRate(rate, amount);
         } else {
-            convertedAmount = calculateCrossRate(baseCurrency, targetCurrency, amount);
-            rate = convertedAmount / amount;
+            exchangeRate = exchangeRateDAO.getIfExist(new CurrencyPair(targetCurrency, baseCurrency));
+            if (exchangeRate.isPresent()) {
+                rate = exchangeRate.get().getRate();
+                convertedAmount = calculator.calculateIndirectRate(rate, amount);
+            } else {
+                ExchangeRate[] exchangeRates = getCrossExchangeRates(baseCurrency, targetCurrency);
+
+                ExchangeRate baseExchangeRate = exchangeRates[0];
+                ExchangeRate targetExchangeRate = exchangeRates[1];
+
+                TypeOfQuote typeOfQuote = determineExchangeRatesQuoteType(baseExchangeRate, targetExchangeRate);
+
+                convertedAmount = calculator.calculateCrossRate(
+                        typeOfQuote, baseExchangeRate, targetExchangeRate, currencyPair, amount);
+
+                rate = convertedAmount / amount;
+            }
         }
 
         return new ExchangeCurrencyResponseDTO(baseCurrency, targetCurrency, rate, amount, convertedAmount);
     }
 
-    private double calculateDirectRate(double rate, double amount) {
-        return amount * rate;
-    }
-
-    private double calculateIndirectRate(double rate, double amount) {
-        return amount / rate;
-    }
-
-    private double calculateCrossRate(Currency baseCurrency, Currency targetCurrency, double amount)
-            throws NotFoundException, DatabaseConnectionException, QueryExecuteException {
-
-        ExchangeRate[] exchangeRates = getCrossExchangeRates(baseCurrency, targetCurrency);
-
-        ExchangeRate baseExchangeRate = exchangeRates[0];
-        ExchangeRate targetExchangeRate = exchangeRates[1];
-
-        double baseRateValue = baseExchangeRate.getRate();
-        double targetRateValue = targetExchangeRate.getRate();
-
-        TypeOfQuote typeOfQuote = determineExchangeRatesQuoteType(baseExchangeRate, targetExchangeRate);
-
-        if (typeOfQuote == TypeOfQuote.DIRECT) {
-            return targetRateValue / baseRateValue * amount;
-        } else if (typeOfQuote == TypeOfQuote.INDIRECT) {
-            return baseRateValue / targetRateValue * amount;
-        } else {
-            if (determineTypeOfQuote(baseExchangeRate) == TypeOfQuote.DIRECT) {
-                return baseRateValue * (amount / targetRateValue);
-            } else {
-                return (amount / baseRateValue) * targetRateValue;
-            }
-        }
-    }
-
-    private TypeOfQuote determineTypeOfQuote(ExchangeRate exchangeRate) {
-        String baseCurrencyCode = exchangeRate.getBaseCurrency().getCode();
-        if (baseCurrencyCode.equals("USD")) {
-            return TypeOfQuote.DIRECT;
-        }
-
-        return TypeOfQuote.INDIRECT;
-    }
-
     private TypeOfQuote determineExchangeRatesQuoteType(ExchangeRate baseExchangeRate, ExchangeRate targetExchangeRate) {
-        String numeratorBase = baseExchangeRate.getBaseCurrency().getCode();
-        String numeratorTarget = targetExchangeRate.getBaseCurrency().getCode();
+        String numeratorBaseCode = baseExchangeRate.getBaseCurrency().getCode();
+        String numeratorTargetCode = targetExchangeRate.getBaseCurrency().getCode();
 
-        if (numeratorBase.equals(numeratorTarget)) {
+        if (numeratorBaseCode.equals(numeratorTargetCode)) {
             return TypeOfQuote.DIRECT;
         }
 
-        String denominatorBase = baseExchangeRate.getTargetCurrency().getCode();
-        String denominatorTarget = targetExchangeRate.getTargetCurrency().getCode();
+        String denominatorBaseCode = baseExchangeRate.getTargetCurrency().getCode();
+        String denominatorTargetCode = targetExchangeRate.getTargetCurrency().getCode();
 
-        if (denominatorBase.equals(denominatorTarget)) {
+        if (denominatorBaseCode.equals(denominatorTargetCode)) {
             return TypeOfQuote.INDIRECT;
         }
 
@@ -111,8 +83,8 @@ public class ExchangeCurrencyService {
 
         Currency currencyUSD = currencyDAO.get("USD");
 
-        CurrencyPair[] USDBaseCurrencyPairs = getUSDCurrencyPairs(currencyUSD, baseCurrency);
-        CurrencyPair[] USDTargetCurrencyPairs = getUSDCurrencyPairs(currencyUSD, targetCurrency);
+        CurrencyPair[] USDBaseCurrencyPairs = createCurrencyPairsWithUSD(currencyUSD, baseCurrency);
+        CurrencyPair[] USDTargetCurrencyPairs = createCurrencyPairsWithUSD(currencyUSD, targetCurrency);
 
         Optional<ExchangeRate> USDBaseRate = getUSDExchangeRate(USDBaseCurrencyPairs);
 
@@ -129,7 +101,7 @@ public class ExchangeCurrencyService {
         }
     }
 
-    private CurrencyPair[] getUSDCurrencyPairs(Currency currencyUSD, Currency currency) {
+    private CurrencyPair[] createCurrencyPairsWithUSD(Currency currencyUSD, Currency currency) {
         CurrencyPair[] currencyPairs = new CurrencyPair[2];
 
         currencyPairs[0] = new CurrencyPair(currencyUSD, currency);
