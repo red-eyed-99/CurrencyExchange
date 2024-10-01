@@ -1,5 +1,6 @@
 package dao;
 
+import exceptions.AlreadyExistException;
 import exceptions.NotFoundException;
 import datasource.SQLiteConnector;
 import exceptions.QueryExecuteException;
@@ -27,11 +28,7 @@ public class CurrencyDAO implements DAO<Currency, String> {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    currency = new Currency();
-                    currency.setId(resultSet.getInt("id"));
-                    currency.setCode(resultSet.getString("code"));
-                    currency.setName(resultSet.getString("full_name"));
-                    currency.setSign(resultSet.getString("sign"));
+                    currency = getCurrency(resultSet);
                 }
             }
 
@@ -59,12 +56,7 @@ public class CurrencyDAO implements DAO<Currency, String> {
              ResultSet resultSet = statement.executeQuery(sql)) {
 
             while (resultSet.next()) {
-                Currency currency = new Currency();
-
-                currency.setId(resultSet.getInt("id"));
-                currency.setCode(resultSet.getString("code"));
-                currency.setName(resultSet.getString("full_name"));
-                currency.setSign(resultSet.getString("sign"));
+                Currency currency = getCurrency(resultSet);
 
                 currencies.add(currency);
             }
@@ -80,13 +72,19 @@ public class CurrencyDAO implements DAO<Currency, String> {
         return currencies;
     }
 
-    @Override
-    public void update(Currency item) {
+    private Currency getCurrency(ResultSet resultSet) throws SQLException {
+        Currency currency = new Currency();
 
+        currency.setId(resultSet.getInt("id"));
+        currency.setCode(resultSet.getString("code"));
+        currency.setName(resultSet.getString("full_name"));
+        currency.setSign(resultSet.getString("sign"));
+
+        return currency;
     }
 
     @Override
-    public void save(Currency currency) throws DatabaseConnectionException, QueryExecuteException {
+    public void save(Currency currency) throws DatabaseConnectionException, QueryExecuteException, AlreadyExistException {
         String sql = "INSERT INTO Currencies (code, full_name, sign) VALUES (?, ?, ?)";
 
         try (Connection connection = SQLiteConnector.getConnection();
@@ -108,7 +106,7 @@ public class CurrencyDAO implements DAO<Currency, String> {
             throw new QueryExecuteException();
         }
     }
-
+    
     public boolean checkExistence(String code) throws DatabaseConnectionException, QueryExecuteException {
         String sql = "SELECT * FROM Currencies WHERE code = ?";
 

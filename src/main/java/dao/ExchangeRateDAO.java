@@ -34,11 +34,7 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    exchangeRate = new ExchangeRate();
-                    exchangeRate.setId(resultSet.getInt("id"));
-                    exchangeRate.setBaseCurrency(baseCurrency);
-                    exchangeRate.setTargetCurrency(targetCurrency);
-                    exchangeRate.setRate(resultSet.getDouble("rate"));
+                    exchangeRate = getExchangeRate(resultSet, baseCurrency, targetCurrency);
                 }
             }
 
@@ -70,11 +66,7 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
                 Currency baseCurrency = getCurrencyById(resultSet.getInt("base_currency_id"));
                 Currency targetCurrency = getCurrencyById(resultSet.getInt("target_currency_id"));
 
-                ExchangeRate exchangeRate = new ExchangeRate();
-                exchangeRate.setId(resultSet.getInt("id"));
-                exchangeRate.setBaseCurrency(baseCurrency);
-                exchangeRate.setTargetCurrency(targetCurrency);
-                exchangeRate.setRate(resultSet.getDouble("rate"));
+                ExchangeRate exchangeRate = getExchangeRate(resultSet, baseCurrency, targetCurrency);
 
                 exchangeRates.add(exchangeRate);
             }
@@ -88,6 +80,19 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
         }
 
         return exchangeRates;
+    }
+
+    private ExchangeRate getExchangeRate(ResultSet resultSet,
+                                         Currency baseCurrency,
+                                         Currency targetCurrency) throws SQLException {
+        ExchangeRate exchangeRate = new ExchangeRate();
+
+        exchangeRate.setId(resultSet.getInt("id"));
+        exchangeRate.setBaseCurrency(baseCurrency);
+        exchangeRate.setTargetCurrency(targetCurrency);
+        exchangeRate.setRate(resultSet.getDouble("rate"));
+
+        return exchangeRate;
     }
 
     public Currency getCurrencyById(int id)
@@ -147,7 +152,6 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
         }
     }
 
-    @Override
     public void update(ExchangeRate exchangeRate) throws DatabaseConnectionException, QueryExecuteException {
         String sql = "UPDATE ExchangeRates SET rate = ? WHERE base_currency_id = ? AND target_currency_id = ?";
 
@@ -189,7 +193,7 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
         }
     }
 
-    public Optional<ExchangeRate> getIfExist(CurrencyPair currencyPair)
+    public Optional<ExchangeRate> findByPair(CurrencyPair currencyPair)
             throws DatabaseConnectionException, QueryExecuteException {
 
         try {

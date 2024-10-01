@@ -32,13 +32,13 @@ public class ExchangeCurrencyService {
 
         CurrencyPair currencyPair = new CurrencyPair(baseCurrency, targetCurrency);
 
-        Optional<ExchangeRate> exchangeRate = exchangeRateDAO.getIfExist(currencyPair);
+        Optional<ExchangeRate> exchangeRate = exchangeRateDAO.findByPair(currencyPair);
 
         if (exchangeRate.isPresent()) {
             rate = exchangeRate.get().getRate();
             convertedAmount = calculator.calculateDirectRate(rate, amount);
         } else {
-            exchangeRate = exchangeRateDAO.getIfExist(new CurrencyPair(targetCurrency, baseCurrency));
+            exchangeRate = exchangeRateDAO.findByPair(new CurrencyPair(targetCurrency, baseCurrency));
             if (exchangeRate.isPresent()) {
                 rate = exchangeRate.get().getRate();
                 convertedAmount = calculator.calculateIndirectRate(rate, amount);
@@ -116,7 +116,7 @@ public class ExchangeCurrencyService {
         Optional<ExchangeRate> exchangeRate = Optional.empty();
 
         for (CurrencyPair currencyPair : currencyPairs) {
-            exchangeRate = exchangeRateDAO.getIfExist(currencyPair);
+            exchangeRate = exchangeRateDAO.findByPair(currencyPair);
             if (exchangeRate.isPresent()) {
                 return exchangeRate;
             }

@@ -1,5 +1,6 @@
 package dao;
 
+import exceptions.AlreadyExistException;
 import exceptions.QueryExecuteException;
 import exceptions.DatabaseConnectionException;
 import exceptions.NotFoundException;
@@ -11,7 +12,5 @@ public interface DAO<T, K> {
 
     List<T> getAll() throws DatabaseConnectionException, QueryExecuteException, NotFoundException;
 
-    void save(T item) throws DatabaseConnectionException, QueryExecuteException;
-
-    void update(T item) throws DatabaseConnectionException, QueryExecuteException;
+    void save(T item) throws DatabaseConnectionException, QueryExecuteException, AlreadyExistException;
 }
