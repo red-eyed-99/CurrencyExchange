@@ -2,22 +2,31 @@ package datasource;
 
 import exceptions.DatabaseConnectionException;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class SQLiteConnector {
-    private static final String USER = "";
-    private static final String PASSWORD = "";
-    private static final String URL = "jdbc:sqlite:D:/Java Projects/CurrencyExchange/src/main/resources/currency_exchange.db";
+    private static final DataSource DATA_SOURCE;
 
-    private static final String DRIVER = "org.sqlite.JDBC";
+    static {
+        InitialContext initialContext;
+        try {
+            initialContext = new InitialContext();
+            DATA_SOURCE = (DataSource) initialContext.lookup("java:comp/env/jdbc/CurrencyExchange");
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private SQLiteConnector() {}
 
     public static Connection getConnection() throws DatabaseConnectionException {
         try {
-            Class.forName(DRIVER);
-            return DriverManager.getConnection(URL);
-        } catch (ClassNotFoundException | SQLException e) {
+            return DATA_SOURCE.getConnection();
+        } catch (SQLException e) {
             throw new DatabaseConnectionException();
         }
     }
