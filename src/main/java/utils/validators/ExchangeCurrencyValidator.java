@@ -59,8 +59,8 @@ public class ExchangeCurrencyValidator extends RequestValidator {
             throw new BadRequestException("Amount parameter value must be a number");
         }
 
-        if (amount < 0) {
-            throw new BadRequestException("Amount parameter value must be a positive number");
+        if (amount <= 0) {
+            throw new BadRequestException("Amount parameter value must be a positive number and greater than zero");
         }
     }
 }
