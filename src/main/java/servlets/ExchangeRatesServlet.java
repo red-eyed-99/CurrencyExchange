@@ -4,6 +4,7 @@ import dao.CurrencyDAO;
 import dao.ExchangeRateDAO;
 import exceptions.*;
 import models.Currency;
+import models.CurrencyPair;
 import models.ExchangeRate;
 import utils.ErrorMessage;
 import utils.ExceptionHandler;
@@ -57,8 +58,8 @@ public class ExchangeRatesServlet extends HttpServlet {
             }
 
             ExchangeRate exchangeRate = new ExchangeRate();
-            exchangeRate.setBaseCurrency(currencyDAO.get(baseCurrencyCode));
-            exchangeRate.setTargetCurrency(currencyDAO.get(targetCurrencyCode));
+            exchangeRate.setBaseCurrency(baseCurrency);
+            exchangeRate.setTargetCurrency(targetCurrency);
             exchangeRate.setRate(Double.parseDouble(request.getParameter("rate")));
 
             exchangeRateDAO.save(exchangeRate);
