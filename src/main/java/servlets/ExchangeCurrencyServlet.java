@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 
 @WebServlet("/exchange")
 public class ExchangeCurrencyServlet extends HttpServlet {
@@ -32,7 +33,7 @@ public class ExchangeCurrencyServlet extends HttpServlet {
 
             String fromCurrencyCode = request.getParameter("from").toUpperCase();
             String toCurrencyCode = request.getParameter("to").toUpperCase();
-            double amount = Double.parseDouble(request.getParameter("amount"));
+            BigDecimal amount = new BigDecimal(request.getParameter("amount"));
 
             ExchangeCurrencyRequestDTO requestDTO =
                     new ExchangeCurrencyRequestDTO(fromCurrencyCode, toCurrencyCode, amount);

@@ -3,6 +3,7 @@ package utils.validators;
 import exceptions.BadRequestException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 

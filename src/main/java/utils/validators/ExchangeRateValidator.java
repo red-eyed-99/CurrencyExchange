@@ -3,6 +3,7 @@ package utils.validators;
 import exceptions.BadRequestException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,9 +31,9 @@ public class ExchangeRateValidator extends RequestValidator {
         return codes;
     }
 
-    public double validateRate(String rateValue) throws BadRequestException {
+    public BigDecimal validateRate(String rateValue) throws BadRequestException {
         checkRateValue(rateValue);
-        return Double.parseDouble(rateValue);
+        return new BigDecimal(rateValue);
     }
 
     @Override

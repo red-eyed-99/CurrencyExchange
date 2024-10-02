@@ -4,7 +4,6 @@ import dao.CurrencyDAO;
 import dao.ExchangeRateDAO;
 import exceptions.*;
 import models.Currency;
-import models.CurrencyPair;
 import models.ExchangeRate;
 import utils.ErrorMessage;
 import utils.ExceptionHandler;
@@ -16,6 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @WebServlet(urlPatterns = {"/exchangeRates", "/exchangeRates*"})
@@ -60,7 +60,7 @@ public class ExchangeRatesServlet extends HttpServlet {
             ExchangeRate exchangeRate = new ExchangeRate();
             exchangeRate.setBaseCurrency(baseCurrency);
             exchangeRate.setTargetCurrency(targetCurrency);
-            exchangeRate.setRate(Double.parseDouble(request.getParameter("rate")));
+            exchangeRate.setRate(new BigDecimal(request.getParameter("rate")));
 
             exchangeRateDAO.save(exchangeRate);
 

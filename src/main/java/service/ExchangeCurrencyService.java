@@ -13,22 +13,22 @@ import models.ExchangeRate;
 import utils.ExchangeCurrencyCalculator;
 import utils.TypeOfQuote;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 public class ExchangeCurrencyService {
     private final CurrencyDAO currencyDAO = new CurrencyDAO();
     private final ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
 
-    private final ExchangeCurrencyCalculator calculator = new ExchangeCurrencyCalculator();
-
     public ExchangeCurrencyResponseDTO exchangeCurrency(ExchangeCurrencyRequestDTO exchangeCurrencyRequestDTO)
             throws DatabaseConnectionException, NotFoundException, QueryExecuteException {
 
         Currency baseCurrency = currencyDAO.get(exchangeCurrencyRequestDTO.getFromCurrencyCode());
         Currency targetCurrency = currencyDAO.get(exchangeCurrencyRequestDTO.getToCurrencyCode());
-        double amount = exchangeCurrencyRequestDTO.getAmount();
-        double rate;
-        double convertedAmount;
+        BigDecimal amount = exchangeCurrencyRequestDTO.getAmount();
+        BigDecimal rate;
+        BigDecimal convertedAmount;
 
         CurrencyPair currencyPair = new CurrencyPair(baseCurrency, targetCurrency);
 
@@ -80,8 +80,6 @@ public class ExchangeCurrencyService {
 
     private ExchangeRate[] getCrossExchangeRates(Currency baseCurrency, Currency targetCurrency)
             throws DatabaseConnectionException, NotFoundException, QueryExecuteException {
-
-        Currency currencyUSD = currencyDAO.get("USD");
 
         CurrencyPair[] USDBaseCurrencyPairs = createCurrencyPairsWithUSD(currencyUSD, baseCurrency);
         CurrencyPair[] USDTargetCurrencyPairs = createCurrencyPairsWithUSD(currencyUSD, targetCurrency);

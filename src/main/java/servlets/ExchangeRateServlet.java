@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
@@ -76,7 +77,7 @@ public class ExchangeRateServlet extends HttpServlet {
             ExchangeRateValidator validator = new ExchangeRateValidator();
 
             String[] currencyPairCodes = validator.validateCurrencyPairCode(request);
-            double rate = validator.validateRate(request.getParameter("rate"));
+            BigDecimal rate = validator.validateRate(request.getParameter("rate"));
 
             Currency baseCurrency = currencyDAO.get(currencyPairCodes[0]);
             Currency targetCurrency = currencyDAO.get(currencyPairCodes[1]);

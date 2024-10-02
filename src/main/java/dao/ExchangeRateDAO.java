@@ -90,7 +90,7 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
         exchangeRate.setId(resultSet.getInt("id"));
         exchangeRate.setBaseCurrency(baseCurrency);
         exchangeRate.setTargetCurrency(targetCurrency);
-        exchangeRate.setRate(resultSet.getDouble("rate"));
+        exchangeRate.setRate(resultSet.getBigDecimal("rate"));
 
         return exchangeRate;
     }
@@ -137,7 +137,7 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
 
             preparedStatement.setInt(1, exchangeRate.getBaseCurrency().getId());
             preparedStatement.setInt(2, exchangeRate.getTargetCurrency().getId());
-            preparedStatement.setDouble(3, exchangeRate.getRate());
+            preparedStatement.setBigDecimal(3, exchangeRate.getRate());
 
             preparedStatement.executeUpdate();
 
@@ -158,7 +158,7 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
         try (Connection connection = SQLiteConnector.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            preparedStatement.setDouble(1, exchangeRate.getRate());
+            preparedStatement.setBigDecimal(1, exchangeRate.getRate());
             preparedStatement.setInt(2, exchangeRate.getBaseCurrency().getId());
             preparedStatement.setInt(3, exchangeRate.getTargetCurrency().getId());
 
@@ -166,7 +166,7 @@ public class ExchangeRateDAO implements DAO<ExchangeRate, CurrencyPair> {
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 if (resultSet.next()) {
-                    exchangeRate.setRate(resultSet.getDouble(1));
+                    exchangeRate.setRate(resultSet.getBigDecimal(1));
                 }
             }
 

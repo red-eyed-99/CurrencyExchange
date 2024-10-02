@@ -2,19 +2,21 @@ package dto;
 
 import models.Currency;
 
+import java.math.BigDecimal;
+
 public class ExchangeCurrencyResponseDTO {
     private final Currency baseCurrency;
     private final Currency targetCurrency;
-    private final double rate;
-    private final double amount;
-    private final double convertedAmount;
+    private final BigDecimal rate;
+    private final BigDecimal amount;
+    private final BigDecimal convertedAmount;
 
     public ExchangeCurrencyResponseDTO(
             Currency baseCurrency,
             Currency targetCurrency,
-            double rate,
-            double amount,
-            double convertedAmount) {
+            BigDecimal rate,
+            BigDecimal amount,
+            BigDecimal convertedAmount) {
 
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;

@@ -1,11 +1,13 @@
 package dto;
 
+import java.math.BigDecimal;
+
 public class ExchangeCurrencyRequestDTO {
     private final String fromCurrencyCode;
     private final String toCurrencyCode;
-    private final double amount;
+    private final BigDecimal amount;
 
-    public ExchangeCurrencyRequestDTO(String fromCurrencyCode, String toCurrencyCode, double amount) {
+    public ExchangeCurrencyRequestDTO(String fromCurrencyCode, String toCurrencyCode, BigDecimal amount) {
         this.fromCurrencyCode = fromCurrencyCode;
         this.toCurrencyCode = toCurrencyCode;
         this.amount = amount;
@@ -19,7 +21,7 @@ public class ExchangeCurrencyRequestDTO {
         return toCurrencyCode;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 }
