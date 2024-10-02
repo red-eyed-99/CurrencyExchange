@@ -10,8 +10,10 @@ import exceptions.QueryExecuteException;
 import models.Currency;
 import models.CurrencyPair;
 import models.ExchangeRate;
-import utils.ExchangeCurrencyCalculator;
-import utils.TypeOfQuote;
+import utils.calculation.CalculationResult;
+import utils.calculation.ExchangeCurrencyCalculator;
+import utils.quotation.QuoteType;
+import utils.quotation.QuoteTypeIdentifier;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,51 +36,48 @@ public class ExchangeCurrencyService {
 
         Optional<ExchangeRate> exchangeRate = exchangeRateDAO.findByPair(currencyPair);
 
+        CalculationResult calculationResult;
+
         if (exchangeRate.isPresent()) {
             rate = exchangeRate.get().getRate();
-            convertedAmount = calculator.calculateDirectRate(rate, amount);
+            calculationResult = ExchangeCurrencyCalculator.calculateDirectRate(rate, amount);
         } else {
             exchangeRate = exchangeRateDAO.findByPair(new CurrencyPair(targetCurrency, baseCurrency));
             if (exchangeRate.isPresent()) {
                 rate = exchangeRate.get().getRate();
-                convertedAmount = calculator.calculateIndirectRate(rate, amount);
+                calculationResult = ExchangeCurrencyCalculator.calculateIndirectRate(rate, amount);
             } else {
-                ExchangeRate[] exchangeRates = getCrossExchangeRates(baseCurrency, targetCurrency);
-
-                ExchangeRate baseExchangeRate = exchangeRates[0];
-                ExchangeRate targetExchangeRate = exchangeRates[1];
-
-                TypeOfQuote typeOfQuote = determineExchangeRatesQuoteType(baseExchangeRate, targetExchangeRate);
-
-                convertedAmount = calculator.calculateCrossRate(
-                        typeOfQuote, baseExchangeRate, targetExchangeRate, currencyPair, amount);
-
-                rate = convertedAmount / amount;
+                calculationResult = calculateCrossRate(currencyPair, amount);
             }
         }
+
+        rate = calculationResult.getRate();
+        amount = amount.setScale(2, RoundingMode.HALF_EVEN);
+        convertedAmount = calculationResult.getResult();
 
         return new ExchangeCurrencyResponseDTO(baseCurrency, targetCurrency, rate, amount, convertedAmount);
     }
 
-    private TypeOfQuote determineExchangeRatesQuoteType(ExchangeRate baseExchangeRate, ExchangeRate targetExchangeRate) {
-        String numeratorBaseCode = baseExchangeRate.getBaseCurrency().getCode();
-        String numeratorTargetCode = targetExchangeRate.getBaseCurrency().getCode();
+    private CalculationResult calculateCrossRate(CurrencyPair currencyPair, BigDecimal amount)
+            throws DatabaseConnectionException, NotFoundException, QueryExecuteException {
 
-        if (numeratorBaseCode.equals(numeratorTargetCode)) {
-            return TypeOfQuote.DIRECT;
-        }
+        Currency baseCurrency = currencyPair.getBaseCurrency();
+        Currency targetCurrency = currencyPair.getTargetCurrency();
 
-        String denominatorBaseCode = baseExchangeRate.getTargetCurrency().getCode();
-        String denominatorTargetCode = targetExchangeRate.getTargetCurrency().getCode();
+        Currency currencyUSD = currencyDAO.get("USD");
 
-        if (denominatorBaseCode.equals(denominatorTargetCode)) {
-            return TypeOfQuote.INDIRECT;
-        }
+        ExchangeRate[] exchangeRates = getCrossExchangeRates(baseCurrency, targetCurrency, currencyUSD);
 
-        return TypeOfQuote.BOTH;
+        ExchangeRate baseExchangeRate = exchangeRates[0];
+        ExchangeRate targetExchangeRate = exchangeRates[1];
+
+        QuoteType typeOfQuote = QuoteTypeIdentifier.determine(baseExchangeRate, targetExchangeRate, currencyUSD);
+
+        return ExchangeCurrencyCalculator.calculateCrossRate(
+                typeOfQuote, baseExchangeRate, targetExchangeRate, currencyPair, amount);
     }
 
-    private ExchangeRate[] getCrossExchangeRates(Currency baseCurrency, Currency targetCurrency)
+    private ExchangeRate[] getCrossExchangeRates(Currency baseCurrency, Currency targetCurrency, Currency currencyUSD)
             throws DatabaseConnectionException, NotFoundException, QueryExecuteException {
 
         CurrencyPair[] USDBaseCurrencyPairs = createCurrencyPairsWithUSD(currencyUSD, baseCurrency);
