@@ -34,16 +34,24 @@ public class CurrencyValidator extends RequestValidator {
             checkNullOrBlank(parameterName, parameterValue);
 
             if (parameterName.equals(CURRENCY_CODE)) {
-                checkCodeLength(parameterValue, lengthLimit);
+                checkCode(parameterValue, lengthLimit);
             }
 
-            checkParameterLength(parameterName, parameterValue, lengthLimit);
+            if (parameterName.equals(CURRENCY_SIGN)) {
+                checkSignValue(parameterValue, lengthLimit);
+                continue;
+            }
+
+            checkParameterLength(parameterValue, lengthLimit);
         }
     }
 
-    private void checkCodeLength(String codeValue, int lengthLimit) throws BadRequestException {
-        if (codeValue.length() != lengthLimit) {
-            throw new BadRequestException("Parameter length must be equal to " + lengthLimit + " characters");
+    private void checkSignValue(String signValue, int lengthLimit) throws BadRequestException {
+        String regex = "^\\D{1," + lengthLimit + "}$";
+
+        if (!signValue.matches(regex)) {
+            throw new BadRequestException("Sign parameter must be no more than " + lengthLimit +
+                    " characters long and not contain numbers");
         }
     }
 }

@@ -3,7 +3,6 @@ package utils.validators;
 import exceptions.BadRequestException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +34,7 @@ public class ExchangeCurrencyValidator extends RequestValidator {
                 checkCodesEquals(parameterValue, targetCurrencyCode);
             }
 
-            checkParameterLength(parameterName, parameterValue, lengthLimit);
+            checkParameterLength(parameterValue, lengthLimit);
 
             if (parameterName.equals(EXCHANGECURRENCY_AMOUNT)) {
                 checkAmountValue(parameterValue);

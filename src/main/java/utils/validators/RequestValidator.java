@@ -17,9 +17,7 @@ public abstract class RequestValidator {
 
         String codeValue = pathInfo.substring(1);
 
-        if (codeValue.isBlank() || codeValue.length() != lengthLimit) {
-            throw new BadRequestException("Code parameter must be equal to " + lengthLimit + " characters");
-        }
+        checkCode(codeValue, lengthLimit);
 
         return codeValue.toUpperCase();
     }
@@ -30,9 +28,17 @@ public abstract class RequestValidator {
         }
     }
 
-    void checkParameterLength(String parameterName, String parameterValue, int lengthLimit) throws BadRequestException {
+    void checkParameterLength(String parameterValue, int lengthLimit) throws BadRequestException {
         if (parameterValue.length() > lengthLimit) {
             throw new BadRequestException("Parameter length must not exceed " + lengthLimit + " characters");
+        }
+    }
+
+    void checkCode(String codeValue, int lengthLimit) throws BadRequestException {
+        String regex = "^[a-zA-z]{" + lengthLimit + "}$";
+
+        if (!codeValue.matches(regex)) {
+            throw new BadRequestException("Code parameter must be equal to " + lengthLimit + " latin characters");
         }
     }
 }

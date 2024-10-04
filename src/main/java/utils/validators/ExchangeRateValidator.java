@@ -51,7 +51,7 @@ public class ExchangeRateValidator extends RequestValidator {
                 checkCodesEquals(parameterValue, targetCurrencyCode);
             }
 
-            checkParameterLength(parameterName, parameterValue, lengthLimit);
+            checkParameterLength(parameterValue, lengthLimit);
 
             if (parameterName.equals(EXCHANGERATES_RATE)) {
                 checkRateValue(parameterValue);
