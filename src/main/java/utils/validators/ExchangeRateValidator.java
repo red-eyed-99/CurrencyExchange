@@ -31,9 +31,16 @@ public class ExchangeRateValidator extends RequestValidator {
         return codes;
     }
 
-    public BigDecimal validateRate(String rateValue) throws BadRequestException {
-        checkRateValue(rateValue);
-        return new BigDecimal(rateValue);
+    public BigDecimal validateRate(String rateParameter) throws BadRequestException {
+        checkNullOrBlank(EXCHANGERATES_RATE, rateParameter);
+
+        if (rateParameter.startsWith(EXCHANGERATES_RATE + "=")) {
+            String rateValue = rateParameter.replace(EXCHANGERATES_RATE + "=", "");
+            checkRateValue(rateValue);
+            return new BigDecimal(rateValue);
+        } else {
+            throw new BadRequestException("Invalid exchange rate parameter");
+        }
     }
 
     @Override
@@ -76,8 +83,8 @@ public class ExchangeRateValidator extends RequestValidator {
             throw new BadRequestException("Rate parameter value must be a number");
         }
 
-        if (rate < 0) {
-            throw new BadRequestException("Rate parameter value must be a positive number");
+        if (rate <= 0) {
+            throw new BadRequestException("Rate parameter value must be a positive number and greater than zero");
         }
     }
 }

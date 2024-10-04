@@ -77,7 +77,7 @@ public class ExchangeRateServlet extends HttpServlet {
             ExchangeRateValidator validator = new ExchangeRateValidator();
 
             String[] currencyPairCodes = validator.validateCurrencyPairCode(request);
-            BigDecimal rate = validator.validateRate(request.getParameter("rate"));
+            BigDecimal rate = validator.validateRate(request.getReader().readLine());
 
             Currency baseCurrency = currencyDAO.get(currencyPairCodes[0]);
             Currency targetCurrency = currencyDAO.get(currencyPairCodes[1]);
@@ -85,8 +85,11 @@ public class ExchangeRateServlet extends HttpServlet {
             CurrencyPair currencyPair = new CurrencyPair(baseCurrency, targetCurrency);
 
             exchangeRate = exchangeRateDAO.get(currencyPair);
-            exchangeRate.setRate(rate);
-            exchangeRateDAO.update(exchangeRate);
+
+            if (exchangeRate.getRate().compareTo(rate) != 0) {
+                exchangeRate.setRate(rate);
+                exchangeRateDAO.update(exchangeRate);
+            }
 
         } catch (DatabaseConnectionException | QueryExecuteException | NotFoundException |
                  BadRequestException e) {
