@@ -57,7 +57,7 @@ public class ExchangeCurrencyCalculator {
                 .divide(targetRate, 2, RoundingMode.HALF_EVEN)
                 .stripTrailingZeros();
 
-        BigDecimal rate = targetRate.divide(targetRate, 6, RoundingMode.HALF_EVEN);
+        BigDecimal rate = baseRate.divide(targetRate, 6, RoundingMode.HALF_EVEN);
 
         return new CalculationResult(result, rate);
     }

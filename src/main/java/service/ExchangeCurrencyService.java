@@ -51,7 +51,7 @@ public class ExchangeCurrencyService {
             }
         }
 
-        rate = calculationResult.getRate();
+        rate = calculationResult.getRate().stripTrailingZeros();
         amount = amount.setScale(2, RoundingMode.HALF_EVEN);
         convertedAmount = calculationResult.getResult();
 
