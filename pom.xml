@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.currencyexchange</groupId>
-    <artifactId>CurrencyExchange</artifactId>
+    <artifactId>currency_exchange</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>CurrencyExchange Maven Webapp</name>
@@ -28,7 +28,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>CurrencyExchange</finalName>
+        <finalName>currency_exchange</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
